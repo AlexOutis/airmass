@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 import sys
 import csv
-#from scipy.interpolate import *
+from scipy.optimize import curve_fit
 filename = 'lcurvePoints.csv'
 fields = []
 rows = []
@@ -21,6 +21,10 @@ def timeconv(string):
     if (hh < 12): hh += 24
     return hh + mm/60 + ss/3600
 
+def func(x, a, b, c, d):
+    return a / np.cos(b * x + d) + c
+        
+    
 
 i = 0
 x = []
@@ -50,17 +54,17 @@ for i in range(len(y)):
     y[i] /= y00
     dm.append(-2.5 * math.log10(y[i]))
 #print(x)
-mag = mag
+#print(dm)
 xnew = np.linspace(x[0], x[len(x) - 1], 300)
-model = np.poly1d(np.polyfit(x, dm, 2))
-ynew = model(xnew)
-plt.plot(xnew, ynew)
 
-#plt.axvline(x=0, color = 'black', linestyle= '--')
-#plt.hlines(1.382, x[0], x[len(x) - 1], color = 'grey', linestyle = '--')
-#plt.axvline(x=5.7, color = 'black', linestyle= '--')
-plot = plt.scatter(x, dm)
+param, pcov = curve_fit(func, x, dm, bounds=([0.025, 0.15, -0.4, -1.6], [0.2, 0.4, -0.2, -1.1]))
+
+ans = (param[0]/np.cos(param[1] *xnew + param[3])) + param[2]
+plt.axvline(x=-param[3]/param[1], color = 'black', linestyle= '--')
+plt.scatter(x, dm)
+plt.plot(xnew, ans, label =f'extinction: {round(param[0], 2)}')
 plt.ylabel('Relative magnitude of standard star')
 plt.xlabel('Time in hours')
+plt.legend()
 plt.show()
 
