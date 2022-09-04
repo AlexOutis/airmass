@@ -35,7 +35,7 @@ y /= y[0]
 dm = -2.5 * np.log10(y)
 
 param, pcov = curve_fit(func, x, dm, bounds=([0.025, 0.15, -0.4, -1.6], [0.2, 0.4, -0.2, -1.1]))
-xnew = np.linspace(x[0], x[len(x) - 1], 300)
+xnew = np.linspace(x[0], x[-1], 300)
 ans = (param[0]/np.cos(param[1] *xnew + param[3])) + param[2]
 
 
